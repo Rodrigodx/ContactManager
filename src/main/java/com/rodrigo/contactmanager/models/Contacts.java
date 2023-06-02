@@ -1,7 +1,7 @@
 package com.rodrigo.contactmanager.models;
 
 
-import com.rodrigo.contactmanager.services.validation.ContactNumberConstraint;
+import com.rodrigo.contactmanager.validation.ContactNumberConstraint;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;

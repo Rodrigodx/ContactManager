@@ -1,9 +1,11 @@
 package com.rodrigo.contactmanager.services;
 
+import com.rodrigo.contactmanager.controller.ContactsController;
 import com.rodrigo.contactmanager.dto.ContactsDTO;
 import com.rodrigo.contactmanager.dto.GetContactsDTO;
 import com.rodrigo.contactmanager.models.Contacts;
 import com.rodrigo.contactmanager.repositories.ContactsRepository;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.AbstractConverter;
@@ -11,12 +13,14 @@ import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.data.annotation.ReadOnlyProperty;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
-
 
 @Service
 @RequiredArgsConstructor
@@ -25,16 +29,26 @@ public class ContactsServices {
     private final ContactsRepository contactsRepository;
 
     @ReadOnlyProperty
-    public List<GetContactsDTO> findAll(){
+    public List<EntityModel<GetContactsDTO>> findAll() {
         List<Contacts> result = contactsRepository.findAll();
-        return result.stream().map(contact -> {
-            GetContactsDTO dto = new GetContactsDTO();
-            dto.setName(contact.getName());
-            return dto;
-        }).toList();
+        List<EntityModel<GetContactsDTO>> entities = new ArrayList<>();
+
+        for (Contacts contact : result) {
+            GetContactsDTO getContactsDTO = new GetContactsDTO();
+            getContactsDTO.setName(contact.getName());
+
+            Link link = WebMvcLinkBuilder.linkTo(ContactsController.class)
+                    .slash(contact.getId())
+                    .withRel(contact.getName());
+
+            EntityModel<GetContactsDTO> entity = EntityModel.of(getContactsDTO, link);
+            entities.add(entity);
+        }
+
+        return entities;
     }
 
-    @Transactional
+    @ReadOnlyProperty
     public ContactsDTO findById(Long id) {
         Contacts contacts = contactsRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Contato não encontrado com o ID: " + id));

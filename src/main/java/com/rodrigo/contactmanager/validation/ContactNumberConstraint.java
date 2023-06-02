@@ -1,4 +1,4 @@
-package com.rodrigo.contactmanager.services.validation;
+package com.rodrigo.contactmanager.validation;
 
 
 import jakarta.validation.Constraint;

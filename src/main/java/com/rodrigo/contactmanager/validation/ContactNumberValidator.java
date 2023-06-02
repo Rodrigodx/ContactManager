@@ -1,7 +1,8 @@
-package com.rodrigo.contactmanager.services.validation;
+package com.rodrigo.contactmanager.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import org.springframework.http.ResponseEntity;
 
 public class ContactNumberValidator implements
         ConstraintValidator<ContactNumberConstraint, String> {
@@ -15,7 +16,7 @@ public class ContactNumberValidator implements
     public boolean isValid(String contactField,
                            ConstraintValidatorContext cxt) {
         return contactField != null && contactField.matches("[0-9]+")
-                && (contactField.length() > 9) && (contactField.length() < 12);
+                && (contactField.length() == 13);
     }
 
 }

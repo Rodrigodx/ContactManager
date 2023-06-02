@@ -5,6 +5,7 @@ import com.rodrigo.contactmanager.dto.GetContactsDTO;
 import com.rodrigo.contactmanager.models.Contacts;
 import com.rodrigo.contactmanager.services.ContactsServices;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +20,7 @@ public class ContactsController {
     private final ContactsServices contactsServices;
 
     @GetMapping
-    public ResponseEntity<List<GetContactsDTO>> findAll(){
-
+    public ResponseEntity<List<EntityModel<GetContactsDTO>>> findAll(){
         return ResponseEntity.ok(contactsServices.findAll());
     }
 
