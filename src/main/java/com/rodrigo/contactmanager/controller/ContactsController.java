@@ -1,6 +1,6 @@
 package com.rodrigo.contactmanager.controller;
 
-import com.rodrigo.contactmanager.dto.ContactsDTO;
+import com.rodrigo.contactmanager.dto.ContactResponse;
 import com.rodrigo.contactmanager.dto.GetContactsDTO;
 import com.rodrigo.contactmanager.models.Contacts;
 import com.rodrigo.contactmanager.services.ContactsServices;
@@ -25,18 +25,18 @@ public class ContactsController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ContactsDTO> getContactById(@PathVariable Long id) {
-        ContactsDTO postContactsDTO = contactsServices.findById(id);
-        return ResponseEntity.ok(postContactsDTO);
+    public ResponseEntity<ContactResponse> getContactById(@PathVariable Long id) {
+        ContactResponse contactResponse = contactsServices.findById(id);
+        return ResponseEntity.ok(contactResponse);
     }
 
     @PostMapping
-    public ResponseEntity<ContactsDTO> createContacts(@RequestBody Contacts contacts) {
+    public ResponseEntity<ContactResponse> createContacts(@RequestBody Contacts contacts) {
         return new ResponseEntity<>(contactsServices.save(contacts), HttpStatus.CREATED);
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<ContactsDTO> updateContacts(@RequestBody Contacts contacts, @PathVariable Long id){
+    public ResponseEntity<ContactResponse> updateContacts(@RequestBody Contacts contacts, @PathVariable Long id){
         contacts.setId(id);
         return new ResponseEntity<>(contactsServices.save(contacts), HttpStatus.CREATED);
     }

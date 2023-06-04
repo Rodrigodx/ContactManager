@@ -1,5 +1,6 @@
 package com.rodrigo.contactmanager.services;
 
+import com.rodrigo.contactmanager.dto.ContactResponse;
 import com.rodrigo.contactmanager.controller.ContactsController;
 import com.rodrigo.contactmanager.dto.ContactsDTO;
 import com.rodrigo.contactmanager.dto.GetContactsDTO;
@@ -14,13 +15,12 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.stereotype.Service;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
-import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -49,20 +49,34 @@ public class ContactsServices {
     }
 
     @ReadOnlyProperty
-    public ContactsDTO findById(Long id) {
+    public ContactResponse findById(Long id) {
         Contacts contacts = contactsRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Contato não encontrado com o ID: " + id));
 
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
-        return modelMapper.map(contacts, ContactsDTO.class);
+        ContactsDTO contactsDTO = modelMapper.map(contacts, ContactsDTO.class);
+
+        String telephone = contactsDTO.getTelephone();
+        String externalUrl = "https://wa.me/" + telephone;
+
+
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(externalUrl);
+
+        Link whatsapp = Link.of(builder.toUriString(), contactsDTO.getName())
+                .withRel("Whatsapp");
+
+        ContactResponse response = new ContactResponse();
+        response.setContactsDTO(contactsDTO);
+        response.setExternalLink(whatsapp);
+
+        return response;
     }
     @Transactional
-    public ContactsDTO save(Contacts contacts) {
+    public ContactResponse save(Contacts contacts) {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-
         Converter<Contacts, ContactsDTO> contactsToPostContactsDtoConverter = new AbstractConverter<>() {
             protected ContactsDTO convert(Contacts source) {
                 ContactsDTO dto = new ContactsDTO();
@@ -77,7 +91,17 @@ public class ContactsServices {
         modelMapper.addConverter(contactsToPostContactsDtoConverter);
 
         Contacts savedContacts = contactsRepository.save(contacts);
-        return modelMapper.map(savedContacts, ContactsDTO.class);
+        ContactsDTO contactsDTO = modelMapper.map(savedContacts, ContactsDTO.class);
+
+        Link link = WebMvcLinkBuilder
+                .linkTo(ContactsController.class)
+                .slash(savedContacts.getId())
+                .withRel(savedContacts.getName());
+
+        ContactResponse response = new ContactResponse(contactsDTO, link);
+
+        return response;
+
     }
 
     @Transactional
