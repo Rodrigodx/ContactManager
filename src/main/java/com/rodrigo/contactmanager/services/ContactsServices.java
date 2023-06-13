@@ -75,6 +75,7 @@ public class ContactsServices {
     }
     @Transactional
     public ContactResponse save(Contacts contacts) {
+
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Converter<Contacts, ContactsDTO> contactsToPostContactsDtoConverter = new AbstractConverter<>() {
@@ -101,7 +102,6 @@ public class ContactsServices {
         ContactResponse response = new ContactResponse(contactsDTO, link);
 
         return response;
-
     }
 
     @Transactional
