@@ -69,7 +69,7 @@ public class ContactsServices {
 
         ContactResponse response = new ContactResponse();
         response.setContactsDTO(contactsDTO);
-        response.setExternalLink(whatsapp);
+        response.setLink(whatsapp);
 
         return response;
     }
